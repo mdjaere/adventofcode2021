@@ -1,23 +1,8 @@
 import fileinput
-nums = [int(line.strip()) for line in fileinput.input()]
+data = [int(line.strip()) for line in fileinput.input()]
 
-ups = 0
-last = nums[0]
-for num in nums[1:]:
-    if num > last:
-        ups += 1
-    last = num
+ups = sum(1 for i in range(len(data)-1) if data[i+1] - data[i] > 0)
 print(f"Part 1: {ups}")
 
-
-tri_ups = 0
-last = sum(nums[0:3])
-for i in range(len(nums)):
-    window = nums[1+i:4+i]
-    if len(window) < 3:
-        break
-    tri_sum = sum(window)
-    if tri_sum > last:
-        tri_ups += 1
-    last = tri_sum
+tri_ups = sum([1 for i in range(len(data)-3) if data[i+3] - data[i] > 0])
 print(f"Part 2: {tri_ups}")
