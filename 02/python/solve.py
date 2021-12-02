@@ -22,7 +22,6 @@ depth = 0  # depth
 aim = 0  # aim
 
 for cmd in data:
-    print(cmd)
     direction, value = cmd
     if direction == "down":
         aim += int(value)
@@ -31,7 +30,6 @@ for cmd in data:
     if direction == "forward":
         hor_pos += int(value)
         depth += aim * int(value)
-    print(hor_pos, depth, aim)
 
 result = hor_pos * depth
 print( f"Part2: {result}")
