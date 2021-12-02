@@ -1,37 +1,56 @@
 import fileinput
+from dataclasses import dataclass
+
+
+@dataclass
+class Sub_cmd:
+    direction: str
+    value: int
+
+    def __post_init__(self):
+        self.value = int(self.value)
+
+
+@dataclass
+class Submarine:
+    hor_pos: int = 0
+    depth: int = 0
+    aim: int = 0
+
+    def navigate(self, cmd: Sub_cmd):
+        if cmd.direction == "down":
+            self.depth += cmd.value
+        if cmd.direction == "up":
+            self.depth -= cmd.value
+        if cmd.direction == "forward":
+            self.hor_pos += cmd.value
+
+    def navigate_with_aim(self, cmd: Sub_cmd):
+        if cmd.direction == "down":
+            self.aim += cmd.value
+        if cmd.direction == "up":
+            self.aim -= cmd.value
+        if cmd.direction == "forward":
+            self.hor_pos += cmd.value
+            self.depth += self.aim * cmd.value
+
+    def result(self):
+        return self.hor_pos * self.depth
+
+
 lines = [line.strip() for line in fileinput.input()]
-data = [ line.split() for line in lines]
-
-hor_pos = 0  # horizontal position
-depth = 0  # depth
+data = [Sub_cmd(*line.split()) for line in lines]
+sub = Submarine()
 
 for cmd in data:
-    direction, value = cmd
-    if direction == "down":
-        depth += int(value)
-    if direction == "up":
-        depth -= int(value)
-    if direction == "forward":
-        hor_pos += int(value)
+    sub.navigate(cmd)
 
-result = hor_pos * depth
-print( f"Part1: {result}")
+print(f"Part1: {sub.result()}")
 
-hor_pos = 0  # horizontal position
-depth = 0  # depth
-aim = 0  # aim
+####
 
+sub2 = Submarine()
 for cmd in data:
-    print(cmd)
-    direction, value = cmd
-    if direction == "down":
-        aim += int(value)
-    if direction == "up":
-        aim -= int(value)
-    if direction == "forward":
-        hor_pos += int(value)
-        depth += aim * int(value)
-    print(hor_pos, depth, aim)
+    sub2.navigate_with_aim(cmd)
 
-result = hor_pos * depth
-print( f"Part2: {result}")
+print(f"Part2: {sub2.result()}")
