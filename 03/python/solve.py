@@ -1,12 +1,9 @@
 import fileinput
 
 data = [line.strip() for line in fileinput.input()]
-
 def max_string(data):
-    sums = [0]*len(data[0])
-    for i in range(len(data[0])):
-        for item in data:
-            sums[i] = sums[i] + int(item[i])
+    columns = zip(*data)
+    sums = [sum(int(c) for c in col) for col in columns]
     max_str = "".join(["1" if x >= len(data) / 2 else "0" for x in sums])
     return max_str
 
