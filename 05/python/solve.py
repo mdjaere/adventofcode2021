@@ -9,7 +9,7 @@ class Point:
 
 
 @dataclass
-class Vent:
+class Pipe:
     start: Point
     end: Point
     vector = [0, 0]
@@ -21,55 +21,55 @@ class Vent:
         self.transform = [int(v / max_vec) for v in self.vector]
 
 
-class VentMap:
+class Grid:
     def __init__(self, width, height):
         self.map = [[0]*(width+1) for i in range(height+1)]
 
-    def add_vent(self, vent, skip_diagonal=False):
-        if skip_diagonal and not any(x == 0 for x in vent.vector):
+    def add_pipe(self, pipe, skip_diagonal=False):
+        if skip_diagonal and not any(x == 0 for x in pipe.vector):
             return
-        current = vent.start
+        current = pipe.start
         while True:
             self.map[current.y][current.x] += 1
-            if current.x == vent.end.x and current.y == vent.end.y:
+            if current.x == pipe.end.x and current.y == pipe.end.y:
                 break
             current = Point(
-                current.x + vent.transform[0], current.y + vent.transform[1])
+                current.x + pipe.transform[0], current.y + pipe.transform[1])
 
-    def vent_crossings(self):
+    def pipe_crossings(self):
         return sum(1 for row in self.map for x in row if x >= 2)
 
 
-def find_dimensions(vents):
-    width = [vent.start.x for vent in vents] + [vent.end.x for vent in vents]
-    height = [vent.start.y for vent in vents] + [vent.end.y for vent in vents]
+def find_dimensions(pipes):
+    width = [pipe.start.x for pipe in pipes] + [pipe.end.x for pipe in pipes]
+    height = [pipe.start.y for pipe in pipes] + [pipe.end.y for pipe in pipes]
     return max(width), max(height)
 
 # Start
 
 
 infile = sys.argv[1] if len(sys.argv) > 1 else 'input'
-lines = [vent.strip("\n") for vent in open(infile)]
+lines = [pipe.strip("\n") for pipe in open(infile)]
 
-vents = [Vent(*[Point(*[int(item) for item in pair.split(",")]) for pair in line.split(" -> ")])
+pipes = [Pipe(*[Point(*[int(item) for item in pair.split(",")]) for pair in line.split(" -> ")])
          for line in lines]
 
-dimensions = find_dimensions(vents)
+dimensions = find_dimensions(pipes)
 
 # Part 1
 
-vent_map_1 = VentMap(*dimensions)
+pipe_map_1 = Grid(*dimensions)
 
-for vent in vents:
-    vent_map_1.add_vent(vent, skip_diagonal=True)
+for pipe in pipes:
+    pipe_map_1.add_pipe(pipe, skip_diagonal=True)
 
-print(f"Part1: {vent_map_1.vent_crossings()}")
+print(f"Part1: {pipe_map_1.pipe_crossings()}")
 
 # Part 2
 
-vent_map_2 = VentMap(*dimensions)
+pipe_map_2 = Grid(*dimensions)
 
-for vent in vents:
-    vent_map_2.add_vent(vent, skip_diagonal=False)
+for pipe in pipes:
+    pipe_map_2.add_pipe(pipe, skip_diagonal=False)
 
-print(f"Part2: {vent_map_2.vent_crossings()}")
+print(f"Part2: {pipe_map_2.pipe_crossings()}")
