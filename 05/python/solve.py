@@ -23,30 +23,27 @@ class Pipe:
 
 class Grid:
     def __init__(self, width, height):
-        self.map = [[0]*(width+1) for i in range(height+1)]
+        self.grid = [[0]*(width+1) for i in range(height+1)]
 
     def add_pipe(self, pipe, skip_diagonal=False):
         if skip_diagonal and not any(x == 0 for x in pipe.vector):
             return
         current = pipe.start
         while True:
-            self.map[current.y][current.x] += 1
+            self.grid[current.y][current.x] += 1
             if current.x == pipe.end.x and current.y == pipe.end.y:
                 break
             current = Point(
                 current.x + pipe.transform[0], current.y + pipe.transform[1])
 
     def pipe_crossings(self):
-        return sum(1 for row in self.map for x in row if x >= 2)
+        return sum(1 for row in self.grid for x in row if x >= 2)
 
 
 def find_dimensions(pipes):
     width = [pipe.start.x for pipe in pipes] + [pipe.end.x for pipe in pipes]
     height = [pipe.start.y for pipe in pipes] + [pipe.end.y for pipe in pipes]
     return max(width), max(height)
-
-# Start
-
 
 infile = sys.argv[1] if len(sys.argv) > 1 else 'input'
 lines = [pipe.strip("\n") for pipe in open(infile)]
