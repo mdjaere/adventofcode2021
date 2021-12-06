@@ -23,9 +23,8 @@ print(f"Part 1: {len(school)}")
 day = 0
 counter = Counter(school_0)
 count = deque(counter[i] if i in counter else 0 for i in range(9))
-while day < 256:
+for _ in range(256):
     count.rotate(-1)
     count[6] += count[8]
-    day += 1
 
 print(f"Part 2: {sum(count)}")
