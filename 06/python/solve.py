@@ -20,7 +20,7 @@ while day < 80:
 
 print(f"Part 1: {len(school)}")
 
-day = 0
+
 counter = Counter(school_0)
 count = deque(counter[i] if i in counter else 0 for i in range(9))
 for _ in range(256):
