@@ -1,6 +1,5 @@
 import sys
 from collections import Counter
-from types import new_class
 
 infile = sys.argv[1] if len(sys.argv) > 1 else 'input'
 school_0 = [int(x) for x in open(infile).read().split(",")]
