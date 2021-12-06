@@ -1,5 +1,5 @@
 import sys
-from collections import Counter
+from collections import Counter, deque
 
 infile = sys.argv[1] if len(sys.argv) > 1 else 'input'
 school_0 = [int(x) for x in open(infile).read().split(",")]
@@ -21,13 +21,12 @@ while day < 80:
 print(f"Part 1: {len(school)}")
 
 day = 0
-count = Counter(school_0)
-count = {i: count[i] if i in count else 0 for i in range(9)}
+counter = Counter(school_0)
+count = deque(counter[i] if i in counter else 0 for i in range(9))
 while day < 256:
-    new_count = {i: count[i+1] for i in range(8)}
-    new_count[6] += count[0]
-    new_count[8] = count[0]
-    count = new_count
+    v0 = count.popleft()
+    count.append(v0)
+    count[6] += v0
     day += 1
 
-print(f"Part 2: {sum(count.values())}")
+print(f"Part 2: {sum(count)}")
