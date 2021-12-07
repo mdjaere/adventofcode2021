@@ -12,4 +12,4 @@ def gauss_summation(n):
     return (n*(n+1))/2
 
 r2 = min(sum(gauss_summation(abs(i-x)) for i in input) for x in range(min(input), max(input)))
-print("Part1:", r2)
+print("Part1:", int(r2))
