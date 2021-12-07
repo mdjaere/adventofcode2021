@@ -8,8 +8,8 @@ m = round(st.median(input))
 r1 = sum(abs(i-m) for i in input)
 print("Part1:", r1)
 
-def calc_seq(n):
+def gauss_sum(n):
     return (n*(n+1))/2
 
-r2 = min(sum(calc_seq(abs(i-x)) for i in input) for x in range(min(input), max(input)))
+r2 = min(sum(gauss_sum(abs(i-x)) for i in input) for x in range(min(input), max(input)))
 print("Part1:", r2)
