@@ -48,11 +48,12 @@ for index, cmd in enumerate(instructions):
 print("Part 2:")
 
 xs, ys = zip(*dots)
-for x in range(min(xs), max(xs) + 1):
+
+for y in range(0, max(ys) + 1):
     row = []
-    for y in range(min(ys), max(ys) + 1):
-        if Dot(x, y) in dots:
+    for x in range(0, max(xs) + 1):
+        if Dot(x,y) in dots:
             row.append("#")
         else:
             row.append(" ")
-    print("".join(row))
+    print(" ".join(reversed(row)))
