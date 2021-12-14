@@ -1,12 +1,15 @@
 import sys
 import os
 from collections import Counter, defaultdict
+from functools import reduce
 
 inpath = sys.argv[1] if len(sys.argv) > 1 else 'input'
 
 data_start, raw_instructions = open(inpath).read().split("\n\n")
 instructions = dict([line.split(" -> ")
                     for line in raw_instructions.split("\n")])
+
+# Completely crazy Part 1
 
 base = os.path.join(".", "tmp", inpath)
 
@@ -40,26 +43,21 @@ print("Part1:", freq_data[-1] - freq_data[0])
 
 # Part 2
 
-combination_map = {}
-for i in instructions.items():
-    k, v = i
-    combination_map[k] = k[0]+v, v+k[1]
-
-pairs_count = defaultdict(lambda: 0)
-for i in range(len(data_start)-1):
-    pairs_count[data_start[i] + data_start[i+1]] += 1
+combination_map = {k: [k[0]+v, v+k[1]] for k, v in instructions.items()}
+pairs_count = Counter([data_start[i] + data_start[i+1]
+                      for i in range(len(data_start)-1)])
 
 for i in range(40):
     new_count = defaultdict(lambda: 0)
-    for in_key, in_count in pairs_count.items():
-        for k in combination_map[in_key]:
-            new_count[k] += in_count
+    for pair, count in pairs_count.items():
+        for k in combination_map[pair]:
+            new_count[k] += count
     pairs_count = new_count
 
-c_count = defaultdict(lambda: 0)
-for c_pair, count in pairs_count.items():
-    c_count[c_pair[0]] += count
-c_count[data_0[-1]] += 1
+char_count = defaultdict(lambda: 0)
+for char_pair, count in pairs_count.items():
+    char_count[char_pair[0]] += count
+char_count[data_start[-1]] += 1  # Also count the very last character
 
-freq_data = sorted(c_count.values())
+freq_data = sorted(char_count.values())
 print("Part2:", freq_data[-1] - freq_data[0])
