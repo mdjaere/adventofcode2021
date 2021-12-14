@@ -9,7 +9,7 @@ data_start, raw_instructions = open(inpath).read().split("\n\n")
 instructions = dict([line.split(" -> ")
                     for line in raw_instructions.split("\n")])
 
-# Completely crazy Part 1
+# Part 1
 
 base = os.path.join(".", "tmp", inpath)
 
