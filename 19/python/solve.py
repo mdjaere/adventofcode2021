@@ -80,13 +80,14 @@ while len(locked) < len(sensors):
             ref_sensor = sensors[ref_id]
 
             xs, ys, zs = cand_sensor.get_items_by_axis()
-            alternatives = [xs,  # index 0
-                            ys,  # index 1
-                            zs,  # index 2
-                            [-x for x in xs],  # index 0 reversed
-                            [-x for x in ys],  # index 1 reversed
-                            [-x for x in zs]  # index 2 reversed
-                            ]
+            alternatives = [
+                xs,  # index 0
+                ys,  # index 1
+                zs,  # index 2
+                [-x for x in xs],  # index 0 reversed
+                [-x for x in ys],  # index 1 reversed
+                [-x for x in zs]  # index 2 reversed
+            ]
             # Solve X
             x_solved = False
             for alt_id, alt_axis in enumerate(alternatives):
@@ -115,6 +116,8 @@ while len(locked) < len(sensors):
                         break
                 if x_solved:
                     break
+            if not x_solved:
+                continue
             # Solve Y
             y_solved = False
             for alt_id, alt_axis in enumerate(alternatives):
