@@ -15,13 +15,13 @@ class Point(NamedTuple):
 class Sensor():
     def __init__(self):
         self.items = list()
-        self.x_index = -1
+        self.x_index = None
         self.x_flipped = False
         self.x_offset = 0
-        self.y_index = -1
+        self.y_index = None
         self.y_flipped = False
         self.y_offset = 0
-        self.z_index = -1
+        self.z_index = None
         self.z_flipped = False
         self.z_offset = 0
         self.locked = False
