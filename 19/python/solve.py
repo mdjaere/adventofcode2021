@@ -91,7 +91,7 @@ while len(locked) < len(sensors):
             # Solve X
             x_solved = False
             for alt_id, alt_axis in enumerate(alternatives):
-                for ref_x in ref_sensor.get_xs():
+                for ref_x in ref_sensor.get_xs()[:-11]:
                     for cand_x in alt_axis:
                         candidate_offset = ref_x - cand_x
                         offsets = [x + candidate_offset for x in alt_axis]
@@ -123,7 +123,7 @@ while len(locked) < len(sensors):
             for alt_id, alt_axis in enumerate(alternatives):
                 if not alt_axis:
                     continue
-                for ref_y in ref_sensor.get_ys():
+                for ref_y in ref_sensor.get_ys()[:-11]:
                     for cand_y in alt_axis:
                         candidate_offset = ref_y - cand_y
                         offsets = [x + candidate_offset for x in alt_axis]
@@ -153,7 +153,7 @@ while len(locked) < len(sensors):
             for alt_id, alt_axis in enumerate(alternatives):
                 if not alt_axis:
                     continue
-                for ref_z in ref_sensor.get_zs():
+                for ref_z in ref_sensor.get_zs()[:-11]:
                     for cand_z in alt_axis:
                         candidate_offset = ref_z - cand_z
 
