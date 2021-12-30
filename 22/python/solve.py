@@ -1,7 +1,7 @@
 import sys
 from itertools import chain
-from collections import deque
 
+verbose = False
 
 infile = sys.argv[1] if len(sys.argv) > 1 else 'input'
 
@@ -16,7 +16,6 @@ instructions = [(
         ",")[2].replace("z=", "").split(".."))
 ) for line in open(infile)]
 
-print("PART 1")
 coordinates = set()
 for i_index, instruction in enumerate(instructions):
     cmd, x_range, y_range, z_range = instruction
@@ -32,9 +31,10 @@ for i_index, instruction in enumerate(instructions):
                 else:
                     if p in coordinates:
                         coordinates.remove(p)
-    print(f"After Instruction {i_index} {cmd}: {len(coordinates)}")
+    if verbose:
+        print(f"After Instruction {i_index} {cmd}: {len(coordinates)}")
 
-print("Part1", len(coordinates))
+print("Part 1:", len(coordinates))
 
 
 # Part 2
@@ -68,10 +68,6 @@ def create_new_ranges(existing_range, splitter_range):
 def split_block(block, split_block):
     finalised = []
     x_ranges, x_intersection_type = create_new_ranges(block[0], split_block[0])
-    _, y_intersection_type = create_new_ranges(block[1], split_block[1])
-    _, z_intersection_type = create_new_ranges(block[2], split_block[2])
-    if all(item == "none" for item in [x_intersection_type, y_intersection_type, z_intersection_type]):
-        return [block]
 
     x_splitted = [(r, block[1], block[2]) for r in x_ranges]
 
@@ -128,103 +124,56 @@ def check_inclusion(block, ref_block):
     return True
 
 
-# This block-reducer works well up to a few thousand blocks, but after instruction 386 I have 23,155,800+ blocks, which makes the reducer unusable.
-# Disabled
+def intersect(a, b):
+    # From @gorset
+    result = (
+        (max(a[0][0], b[0][0]), min(a[0][1], b[0][1])),
+        (max(a[1][0], b[1][0]), min(a[1][1], b[1][1])),
+        (max(a[2][0], b[2][0]), min(a[2][1], b[2][1]))
+    )
+    if result[0][0] > result[0][1]:
+        return None
+    if result[1][0] > result[1][1]:
+        return None
+    if result[2][0] > result[2][1]:
+        return None
+    return result
 
 
-def simplify_blocks(blocks=None):
-    if blocks == None:
-        blocks = set()
-    # Not used
-    in_length = len(blocks)
-    print(f"Simplfying {in_length} ...", end="\r")
-    stack = deque(blocks)
-    while stack:
-        block = stack.popleft()
-        if len(stack) % 100 == 0:
-            print(f"Simplfying {in_length} ... {len(stack)}", end="\r")
-        to_add = set()
-        to_delete = set()
-
-        for variant in blocks:
-            if block == variant:
-                continue
-            if (
-                (block[0][0]-1 == variant[0][0] and block[1] == variant[1] and block[2] == variant[2]) or
-                (block[0][1]+1 == variant[0][1] and block[1] == variant[1] and block[2] == variant[2]) or
-                (block[0] == variant[0] and block[1][0]-1 == variant[1][0] and block[2] == variant[2]) or
-                (block[0] == variant[0] and block[1][1]+1 == variant[1][1] and block[2] == variant[2]) or
-                (block[0] == variant[0] and block[1] == variant[1] and block[2][0]-1 == variant[2][0]) or
-                (block[0] == variant[0] and block[1] ==
-                 variant[1] and block[2][1]+1 == variant[2][1])
-            ):
-
-                bigger_block = (
-                    (min(block[0][0], variant[0][0]),
-                        max(block[0][1], variant[0][1])),
-                    (min(block[1][0], variant[1][0]),
-                        max(block[1][1], variant[1][1])),
-                    (min(block[2][0], variant[2][0]),
-                        max(block[2][1], variant[2][1])),
-                )
-
-                # print("NEW BLOCK:", block, variant, "-->", bigger_block)
-                to_add.add(bigger_block)
-                stack.append(bigger_block)
-                if block in blocks:
-                    to_delete.add(block)
-                if variant in blocks:
-                    to_delete.add(variant)
-                if variant in stack:
-                    stack.remove(variant)
-                break
-
-        blocks.difference_update(to_delete)
-        blocks.update(to_add)
-    print(
-        f"Simplfying {in_length} --> {len(blocks)}  ({in_length - len(blocks)} blocks less)")
-
-    return blocks
+def calc_volume(blocks):
+    total = sum(
+        (b[0][1] - b[0][0] + 1) *
+        (b[1][1] - b[1][0] + 1) *
+        (b[2][1] - b[2][0] + 1)
+        for b in blocks)
+    return total
 
 
-blocks = set()
-for i_index, instruction in enumerate(instructions):
-    cmd, x_range, y_range, z_range = instruction
-    op_block = x_range, y_range, z_range
-    if cmd == "on" and i_index == 0:
-        blocks.add(op_block)
-    else:
-        to_delete = []
-        to_add = []
-        for existing_block in blocks:
-            # Splits the existing blocks to the boundries of the new block
-            # Replace the old block with the splitted version except the sub-parts that are inside the new block
-            splits = split_block(existing_block, op_block)
-            to_delete.append(existing_block)
-            to_add.extend(
-                [new_block for new_block in splits if not check_inclusion(new_block, op_block)])
-
-        blocks.difference_update(to_delete)
-        blocks.update(to_add)
-
-        if cmd == "on":
-            # Adds the full new block if "on"
-            blocks.add(op_block)
-
-    # print("reducing blocks", len(blocks))
-    # simplify_blocks(blocks)
-    # print("--->", len(blocks))
-
-    print(
-        f"After Instruction {i_index} {cmd} (number of blocks {len(blocks)})")
+to_keep = set()
+for i, (cmd, x_range, y_range, z_range) in enumerate(instructions):
+    if cmd == "on":
+        temp_blocks = set([(x_range, y_range, z_range)])
+        for f_index, (_, xr, yr, zr) in enumerate(instructions[i+1:]):
+            op_block = xr, yr, zr
+            to_delete = []
+            to_add = []
+            for existing_block in temp_blocks:
+                intersection = intersect(op_block, existing_block)
+                if not intersection:
+                    continue
+                splits = split_block(existing_block, intersection)
+                filtered_temp_blocks = {sub_block for sub_block in splits if not check_inclusion(
+                    sub_block, intersection)}
+                to_add.extend(filtered_temp_blocks)
+                to_delete.append(existing_block)
+            temp_blocks.difference_update(to_delete)
+            temp_blocks.update(to_add)
+        to_keep.update(temp_blocks)
+    if verbose:
+        print(
+            f"After Instruction {i} {cmd} - Volume: {calc_volume(to_keep)} Number of blocks: {len(to_keep)}")
 
 
-volume = 0
-for vol in blocks:
-    dx = abs(vol[0][1] - vol[0][0]) + 1
-    dy = abs(vol[1][1] - vol[1][0]) + 1
-    dz = abs(vol[2][1] - vol[2][0]) + 1
-    single_vol = dx * dy * dz
-    volume += single_vol
+volume = calc_volume(to_keep)
 
-print("Part2", volume)
+print("Part 2:", volume)
